@@ -1,0 +1,240 @@
+** /Package/ INTERFACE/MONAD
+#+begin_example
+This package is the <MONAD> interface. 
+
+It contains and exports:
+<MONAD>
+RESULT
+BIND
+FAIL
+MLET*
+#+end_example
+*** /Interface Class/ <MONAD>
+
+*Super Interface List:*
+
+*<TYPE>* 
+
+*Description:*
+#+begin_example
+An INTERFACE with three functions, RESULT, BIND and FAIL. 
+
+To be a 'proper' monad, it must also follow the Three Monad Laws. 
+
+CHECK-INVARIANT is available if the :INTERFACE/MONAD/TEST/MONAD is
+loaded.
+#+end_example
+*Generic Functions:*
+
+- *result*  /<monad>/  /value/   
+- *bind*  /<monad>/  /monadic-value/  /monadic-function/   
+- *fail*  /<monad>/   
+- *lift-function*  /<monad>/  /function/   
+
+*Methods:*
+
+- INTERFACE/MONAD:LIFT-FUNCTION (<MONAD> T) :: (<MONAD> FUNCTION)
+
+   #+begin_example
+   Take a function that accepts standard values and returns a standard
+value, Turn it into a function that accepts monadic values and retuns
+a monadic value
+AKA: LiftM or MONAD-LIFT
+   #+end_example
+
+*** /Standard Generic Function/ BIND
+
+*Syntax:*
+
+*bind* /<monad>/  /monadic-value/  /monadic-function/   
+
+*Description:*
+#+begin_example
+
+Takes a monadic value, retrieves the contained value, and calls
+the monadic function with it.
+
+MONADIC-VALUE : The value of the type expected by the monad.
+MONADIC-FUNCTION : a function that takes any VALUE and returns a
+MONADIC-VALUE.
+
+e.g., (BIND (RESULT 1) (LAMBDA (N) (RESULT (+ 1 N))))
+#+end_example
+*Methods:*
+
+-  bind (<CONTINUATION> T T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  bind (<STATE-TRANSFORMER> T T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  bind (<STATE> T T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  bind (<MAYBE-TRANSFORMER> T T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  bind (<MAYBE> T T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  bind (<LIST-TRANSFORMER> T T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  bind (<IDENTITY> T T) ::
+
+   #+begin_example
+   FUNCALLs the MF with the MV
+   #+end_example
+-  bind (<LIST> T T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+
+*** /Standard Generic Function/ FAIL
+
+*Syntax:*
+
+*fail* /<monad>/   
+
+*Description:*
+#+begin_example
+
+/no description/
+#+end_example
+*Methods:*
+
+-  fail (<STATE-TRANSFORMER>) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  fail (<MAYBE>) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  fail (<TRANSFORMER>) ::
+
+   #+begin_example
+   no description
+   #+end_example
+
+*** /Standard Generic Function/ LIFT-FUNCTION
+
+*Syntax:*
+
+*lift-function* /<monad>/  /function/   
+
+*Description:*
+#+begin_example
+
+/no description/
+#+end_example
+*Methods:*
+
+-  lift-function (<MONAD> T) ::
+
+   #+begin_example
+   Take a function that accepts standard values and returns a standard
+value, Turn it into a function that accepts monadic values and retuns
+a monadic value
+AKA: LiftM or MONAD-LIFT
+   #+end_example
+
+*** /Macro/ MLET*
+
+*Syntax:*
+
+*mlet** /monad/  /bindings/  /&body/  /body/   
+
+*Description:*
+#+begin_example
+The MLET* macro is like a LET* that is implemented with BIND, and a
+WITH-INTERFACE so the proper functions are FLETd.
+
+MONAD is a form that is passed to WITH-INTERFACE. BINDINGS are
+essentially a list of variables that are expanded into a LAMBDA which
+is passed to BIND. BODY is the body of the form.
+
+e.g, (mlet* <list> ((x (list 1 2 3 4)))
+      (result (1+ x)))
+  
+  ;; MACROEXPANDs to something like:
+  
+  ;; (INTERFACE:WITH-INTERFACE (<LIST> <LIST>) 
+  ;;  (BIND (LIST 1 2 3 4) (LAMBDA (X) (RESULT (1+ X)))
+
+#+end_example
+*** /Standard Generic Function/ RESULT
+
+*Syntax:*
+
+*result* /<monad>/  /value/   
+
+*Description:*
+#+begin_example
+
+Takes a value of TYPE T and returns a monadic value that contains VALUE.
+
+VALUE : anything
+MONADIC-VALUE : The value of the type expected by the monad.
+
+RESULT is the constructor of monad values.
+#+end_example
+*Methods:*
+
+-  result (<CONTINUATION> T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  result (<STATE-TRANSFORMER> T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  result (<STATE> T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  result (<MAYBE-TRANSFORMER> T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  result (<MAYBE> T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  result (<LIST-TRANSFORMER> T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+-  result (<IDENTITY> T) ::
+
+   #+begin_example
+   Returns the VALUE. like CL:IDENTITY
+   #+end_example
+-  result (<LIST> T) ::
+
+   #+begin_example
+   no description
+   #+end_example
+
+
