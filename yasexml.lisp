@@ -1,14 +1,13 @@
-#+(and (not drewc.org/yasexml) quicklisp) 
-(ql:quickload '("closure-html" "cxml"))
+#+quicklisp (ql:quickload '("closure-html" "cxml"))
 
-(defpackage drewc.org/yasexml
+(defpackage :drewc.org/yasexml
   (:documentation 
    "YASEXML: Yet Another Symbolic Expression eXtensible Markup Language")
   (:use :cl)
-  (:import-from :closure-html))
-(in-package drewc.org/yasexml)
-
-(pushnew :drewc.org/yasexml *features*)
+  (:import-from :closure-html)
+  (:export #:<>
+	   #:wrap-in-tag))
+(in-package :drewc.org/yasexml)
 
 (defun add-attribute (name value)
   "=> [implementation-dependent]
@@ -65,24 +64,23 @@ Examples:
   (closure-html:with-html-output (sink :name "yasexml")
     (apply function arguments)))
 
-(defgeneric wrap-in-tag (function arguments 
-			 tag &rest tag-attributes)
-  (:method (f a tag &rest tag-attributes)
-    (apply #'call-with-element (cons tag tag-attributes) 
-	   f a))    
-  (:method (f a (tag (eql :text)) &rest text)
+
+(defgeneric wrap-in-tag (function tag &rest tag-attributes)
+  (:method (f tag &rest tag-attributes)
+    (call-with-element (cons tag tag-attributes) f))    
+  (:method (f (tag (eql :text)) &rest text)
     (map nil #'add-text text)
-    (apply f a))
-  (:method (f a (tag (eql :sink)) &rest sink)
-    (apply #'call-with-sink-output (first sink) f a)))
+    (funcall f))
+  (:method (f (tag (eql :sink)) &rest sink)
+    (call-with-sink-output (first sink) f)))
   
-(defgeneric call-with-tag (tag function &rest arguments)
-  (:method ((tag symbol) f &rest a)
-    (wrap-in-tag f a tag))
-  (:method ((tag string) f &rest a)
-    (wrap-in-tag f a :text tag))
-  (:method ((tag list) f &rest a)
-    (apply #'wrap-in-tag f a tag)))
+(defgeneric call-with-tag (tag function)
+  (:method ((tag symbol) f)
+    (wrap-in-tag f tag))
+  (:method ((tag string) f)
+    (wrap-in-tag f :text tag))
+  (:method ((tag list) f)
+    (apply #'wrap-in-tag f tag)))
 
 (defmacro <> (tag &body body)
   `(call-with-tag 
